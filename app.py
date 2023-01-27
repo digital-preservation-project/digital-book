@@ -2,6 +2,7 @@ import webbrowser
 import pytesseract
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance
 from generate_html import *
+import pandas as pd
 
 images = ["0.png", "1.png"]
 

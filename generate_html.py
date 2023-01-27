@@ -1,5 +1,6 @@
 import webbrowser
 import pandas as pd
+from pytest import linebreak
 
 def generate_html(file_name, output=None):
     df = pd.read_csv("test.csv")
@@ -15,6 +16,7 @@ def generate_html(file_name, output=None):
         else:
             output.append(word["text"])
     output = ' '.join(output)
+    output = linebreak(output)
 
     html = f"""<!DOCTYPE HTML>
     <html>

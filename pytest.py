@@ -30,6 +30,7 @@ def ImageToText(im):
     df.dropna(subset=['text'], inplace=True)
     df.reset_index(inplace=True)
     df['text'].apply(linebreak)
+    df['text'] = df['text'].apply(lambda x: x.replace('-', '') if x[-1] == '-' else x)
     #df.to_csv("test.csv")
     #print(pytesseract.image_to_string(im))
     return df.head(20)

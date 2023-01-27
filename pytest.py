@@ -1,14 +1,18 @@
 import pytesseract
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance
 import pandas as pd
+import re
+import matplotlib.pyplot as plt
+from skimage import data
+from skimage.filters import threshold_otsu
 pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
 
 def ImagePreProcess(im):
-    im = im.filter(ImageFilter.MedianFilter())
-    enhancer = ImageEnhance.Contrast(im)
-    im = enhancer.enhance(2)
-    im = im.convert('1')
-    #im.show()
+    #im = im.filter(ImageFilter.MedianFilter())
+    #enhancer = ImageEnhance.Contrast(im)
+    #im = enhancer.enhance(2)
+    #im = im.convert('1')
+    im.show()
     return im
 
 im = Image.open("1.png")
@@ -29,8 +33,12 @@ def ImageToText(im):
     df.dropna(subset=['text'], inplace=True)
     df.reset_index(inplace=True)
     df['text'].apply(linebreak)
+    df['text'] = df['text'].apply(lambda x: x.replace('-', '') if x[-1] == '-' else x)
     #df.to_csv("test.csv")
     #print(pytesseract.image_to_string(im))
     return df.head(20)
 
+
+
 print(ImageToText(im))
+

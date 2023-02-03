@@ -26,7 +26,6 @@ im = Image.open("1.png")
 im = ImagePreProcess(im)
 
 def ImageToText(im):
-    #data = pytesseract.image_to_data(im, output_type='data.frame')
     data = pytesseract.image_to_data(im, output_type='data.frame')
     df = pd.DataFrame(data)
     df.dropna(subset=['text'], inplace=True)

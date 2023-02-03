@@ -9,6 +9,9 @@ This will place the cropped image in path/to/image.crop.png.
 
 For details on the methodology, see
 http://www.danvk.org/2015/01/07/finding-blocks-of-text-in-an-image-using-python-opencv-and-numpy.html
+
+Script created by Dan Vanderkam (https://github.com/danvk)
+Adapted to Python 3 by Lui Pillmann (https://github.com/luipillmann)
 '''
 
 import glob
@@ -28,12 +31,14 @@ from scipy.ndimage.filters import rank_filter
 
 def dilate(ary, N, iterations): 
     """Dilate using an NxN '+' sign shape. ary is np.uint8."""
+    
     kernel = np.zeros((N,N), dtype=np.uint8)
-    kernel[(N-1)/2,:] = 1
+    kernel[(N-1)//2,:] = 1  # Bug solved with // (integer division)
+    
     dilated_image = cv2.dilate(ary / 255, kernel, iterations=iterations)
-
+    
     kernel = np.zeros((N,N), dtype=np.uint8)
-    kernel[:,(N-1)/2] = 1
+    kernel[:,(N-1)//2] = 1  # Bug solved with // (integer division)
     dilated_image = cv2.dilate(dilated_image, kernel, iterations=iterations)
     return dilated_image
 
@@ -96,7 +101,7 @@ def remove_border(contour, ary):
     r = cv2.minAreaRect(contour)
     degs = r[2]
     if angle_from_right(degs) <= 10.0:
-        box = cv2.cv.BoxPoints(r)
+        box = cv2.boxPoints(r)
         box = np.int0(box)
         cv2.drawContours(c_im, [box], 0, 255, -1)
         cv2.drawContours(c_im, [box], 0, 0, 4)
@@ -114,13 +119,15 @@ def find_components(edges, max_components=16):
     Returns contours for these components."""
     # Perform increasingly aggressive dilation until there are just a few
     # connected components.
+    
     count = 21
     dilation = 5
     n = 1
     while count > 16:
         n += 1
         dilated_image = dilate(edges, N=3, iterations=n)
-        contours, hierarchy = cv2.findContours(dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        dilated_image = np.uint8(dilated_image)
+        _, contours, hierarchy = cv2.findContours(dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         count = len(contours)
     #print dilation
     #Image.fromarray(edges).show()
@@ -165,10 +172,10 @@ def find_optimal_components_subset(contours, edges):
             new_area_frac = 1.0 * crop_area(new_crop) / crop_area(crop) - 1
             if new_f1 > f1 or (
                     remaining_frac > 0.25 and new_area_frac < 0.15):
-                print '%d %s -> %s / %s (%s), %s -> %s / %s (%s), %s -> %s' % (
+                print('%d %s -> %s / %s (%s), %s -> %s / %s (%s), %s -> %s' % (
                         i, covered_sum, new_sum, total, remaining_frac,
                         crop_area(crop), crop_area(new_crop), area, new_area_frac,
-                        f1, new_f1)
+                        f1, new_f1))
                 crop = new_crop
                 covered_sum = new_sum
                 del c_info[i]
@@ -210,7 +217,7 @@ def pad_crop(crop, contours, edges, border_contour, pad_px=15):
         int_area = crop_area(intersect_crops(crop, this_crop))
         new_crop = crop_in_border(union_crops(crop, this_crop))
         if 0 < int_area < this_area and crop != new_crop:
-            print '%s -> %s' % (str(crop), str(new_crop))
+            print('%s -> %s' % (str(crop), str(new_crop)))
             changed = True
             crop = new_crop
 
@@ -235,15 +242,16 @@ def downscale_image(im, max_dim=2048):
 
 
 def process_image(path, out_path):
+
     orig_im = Image.open(path)
     scale, im = downscale_image(orig_im)
 
     edges = cv2.Canny(np.asarray(im), 100, 200)
 
     # TODO: dilate image _before_ finding a border. This is crazy sensitive!
-    contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     borders = find_border_components(contours, edges)
-    borders.sort(key=lambda (i, x1, y1, x2, y2): (x2 - x1) * (y2 - y1))
+    borders.sort(key=lambda i_x1_y1_x2_y2: (i_x1_y1_x2_y2[3] - i_x1_y1_x2_y2[1]) * (i_x1_y1_x2_y2[4] - i_x1_y1_x2_y2[2]))
 
     border_contour = None
     if len(borders):
@@ -260,13 +268,16 @@ def process_image(path, out_path):
 
     contours = find_components(edges)
     if len(contours) == 0:
-        print '%s -> (no text!)' % path
+        print('%s -> (no text!)' % path)
         return
+
+    
 
     crop = find_optimal_components_subset(contours, edges)
     crop = pad_crop(crop, contours, edges, border_contour)
 
     crop = [int(x / scale) for x in crop]  # upscale to the original image size.
+
     #draw = ImageDraw.Draw(im)
     #c_info = props_for_contours(contours, edges)
     #for c in c_info:
@@ -279,7 +290,7 @@ def process_image(path, out_path):
     #im.show()
     text_im = orig_im.crop(crop)
     text_im.save(out_path)
-    print '%s -> %s' % (path, out_path)
+    print('%s -> %s' % (path, out_path))
 
 
 if __name__ == '__main__':
@@ -290,9 +301,10 @@ if __name__ == '__main__':
         files = sys.argv[1:]
 
     for path in files:
-        out_path = path.replace('.jpg', '.crop.png')
+        #out_path = path.replace('.jpg', '.crop.png')
+        out_path = path.replace('.png', '.crop.png')  # .png as input
         if os.path.exists(out_path): continue
         try:
             process_image(path, out_path)
         except Exception as e:
-            print '%s %s' % (path, e)
+            print('%s %s' % (path, e))

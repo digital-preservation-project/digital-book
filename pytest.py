@@ -2,9 +2,7 @@ import pytesseract
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance
 import pandas as pd
 import re
-import matplotlib.pyplot as plt
-from skimage import data
-from skimage.filters import threshold_otsu
+import os
 pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
 
 def ImagePreProcess(im):
@@ -12,10 +10,11 @@ def ImagePreProcess(im):
     #enhancer = ImageEnhance.Contrast(im)
     #im = enhancer.enhance(2)
     #im = im.convert('1')
+    os.system("python crop_morphology.py 2.jpg")  
     im.show()
     return im
 
-im = Image.open("1.png")
+im = Image.open("2.jpg")
 im = ImagePreProcess(im)
 
 def linebreak(txt = str):

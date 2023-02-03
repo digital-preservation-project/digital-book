@@ -21,9 +21,9 @@ def ImagePreProcess(im):
 im = Image.open("2.png")
 im = ImagePreProcess(im)
 
-def linebreak(txt : str):
+def linebreak(txt: str) -> str:
     """
-    This function detect systematica errors and rectify them
+    This function detect systematic errors and rectifies them.
     """
     pattern = [['—\s', ' '], ['‘‘\s','"'], ['\s‘‘','"'], ['-\s', ' ']]
     for i in pattern:
@@ -53,12 +53,9 @@ def ImageToText(im):
     df = pd.DataFrame(data)
     df.dropna(subset=['text'], inplace=True)
     df.reset_index(inplace=True)
-    # df['text'].apply(linebreak)
-    # df['text'] = df['text'].apply(lambda x: x.replace('-', '') if x[-1] == '-' else x)
+    df['text'].apply(linebreak)
+    df['text'] = df['text'].apply(lambda x: x.replace('-', '') if x[-1] == '-' else x)
     word_concat(df)
-    #df.to_csv("test.csv")
-    #print(pytesseract.image_to_string(im))
-    #return df.head(20)
     return df
 
 

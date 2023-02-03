@@ -8,7 +8,7 @@ pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tessera
 
 def linebreak(txt = str):
     """
-    This function detect systematica errors and rectify them
+    This function detect systematic errors and rectifies them.
     """
     pattern = [['—\s', ' '], ['‘‘\s','"'], ['\s‘‘','"'], ['-\s', ' ']]
     for i in pattern:
@@ -20,26 +20,23 @@ def ImagePreProcess(im):
     enhancer = ImageEnhance.Contrast(im)
     im = enhancer.enhance(2)
     im = im.convert('1')
-    #im.show()
     return im
 
 im = Image.open("1.png")
 im = ImagePreProcess(im)
 
 def ImageToText(im):
+    #data = pytesseract.image_to_data(im, output_type='data.frame')
     data = pytesseract.image_to_data(im, output_type='data.frame')
     df = pd.DataFrame(data)
     df.dropna(subset=['text'], inplace=True)
     df.reset_index(inplace=True)
     df['text'].apply(linebreak)
     df['text'] = df['text'].apply(lambda x: x.replace('-', '') if x[-1] == '-' else x)
-    #df.to_csv("test.csv")
-    #print(pytesseract.image_to_string(im))
-    #return df.head(20)
     return df
 
-def generate_html(file_name, output=None):
-    df = pd.read_csv("test.csv")
+def generate_html(file_name: str, output=None) -> None:
+    df = ImageToText(im)
     f = open(f"{file_name}.html", "w")
 
     words = df[["par_num", "text"]]
@@ -52,7 +49,14 @@ def generate_html(file_name, output=None):
         else:
             output.append(word["text"])
     output = ' '.join(output)
-    output = linebreak(output)
+
+    # replace characters not encoded in UTF-8
+    output = output.replace("“", "\"")
+    output = output.replace("”", "\"")
+    output = output.replace("’", "'")
+    output = output.replace("‘", "'")
+    output = output.replace("—‘", "-")
+    output = output.replace("«", "\"")
 
     html = f"""<!DOCTYPE HTML>
     <html>

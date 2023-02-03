@@ -9,15 +9,14 @@ def ImagePreProcess(im):
     enhancer = ImageEnhance.Contrast(im)
     im = enhancer.enhance(2)
     im = im.convert('1')
-    #im.show()
     return im
 
 im = Image.open("1.png")
 im = ImagePreProcess(im)
 
-def linebreak(txt = str):
+def linebreak(txt: str) -> str:
     """
-    This function detect systematica errors and rectify them
+    This function detect systematic errors and rectifies them.
     """
     pattern = [['—\s', ' '], ['‘‘\s','"'], ['\s‘‘','"'], ['-\s', ' ']]
     for i in pattern:
@@ -31,9 +30,6 @@ def ImageToText(im):
     df.reset_index(inplace=True)
     df['text'].apply(linebreak)
     df['text'] = df['text'].apply(lambda x: x.replace('-', '') if x[-1] == '-' else x)
-    #df.to_csv("test.csv")
-    #print(pytesseract.image_to_string(im))
-    #return df.head(20)
     return df
 
 

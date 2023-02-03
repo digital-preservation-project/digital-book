@@ -10,11 +10,11 @@ def ImagePreProcess(im):
     #enhancer = ImageEnhance.Contrast(im)
     #im = enhancer.enhance(2)
     #im = im.convert('1')
-    os.system("python crop_morphology.py 2.jpg")  
+    os.system("python crop_morphology.py 2.png")  
     im.show()
     return im
 
-im = Image.open("2.jpg")
+im = Image.open("2.png")
 im = ImagePreProcess(im)
 
 def linebreak(txt = str):

@@ -65,9 +65,13 @@ def generate_html(file_name: str, output=None) -> None:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
             <title>{file_name}</title>
+            <style>
+                h2 {{text-align: center}}
+                p {{margin-left: 20%; margin-right: 20%; text-align: justify}}
+            </style>
         </head>
         <body>
-            <h2>Hello world!</h2>
+            <h2>New page</h2>
 
             {output}
 

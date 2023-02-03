@@ -33,7 +33,8 @@ def ImageToText(im):
     df['text'] = df['text'].apply(lambda x: x.replace('-', '') if x[-1] == '-' else x)
     #df.to_csv("test.csv")
     #print(pytesseract.image_to_string(im))
-    return df.head(20)
+    #return df.head(20)
+    return df
 
 
 

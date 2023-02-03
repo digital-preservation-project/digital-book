@@ -10,11 +10,10 @@ def ImagePreProcess(im):
     #enhancer = ImageEnhance.Contrast(im)
     #im = enhancer.enhance(2)
     #im = im.convert('1')
-    os.system("python crop_morphology.py 2.png")  
     im.show()
     return im
 
-im = Image.open("2.png")
+im = Image.open("1.png")
 im = ImagePreProcess(im)
 
 def linebreak(txt = str):
@@ -33,7 +32,7 @@ def ImageToText(im):
     df.reset_index(inplace=True)
     df['text'].apply(linebreak)
     df['text'] = df['text'].apply(lambda x: x.replace('-', '') if x[-1] == '-' else x)
-    #df.to_csv("test.csv")
+    df.to_csv("test.csv")
     #print(pytesseract.image_to_string(im))
     return df.head(20)
 

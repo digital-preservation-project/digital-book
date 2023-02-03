@@ -17,8 +17,8 @@ def merge_linebreak(col):
 # For example:
 df = pd.DataFrame({'text': ['kill-','at', '-kill-', '3'], 'dan':['66', '87', '64', '4']})
 df_serie = df['text']
-df_serie = df_serie.str.findall('-$')
-index_to_replace = np.array(df_serie.index[df_serie.str.len() != 0].tolist())
+# df_serie = df_serie.str.findall('-$')
+index_to_replace = np.array(df_serie.index[df_serie.str.findall('-$').str.len() != 0].tolist())
 index_to_drop = index_to_replace + 1
 substitute = []
 for i in index_to_drop:
